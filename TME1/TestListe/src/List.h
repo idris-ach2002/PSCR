@@ -21,31 +21,21 @@ public:
 
 	Chainon * tete;
 
-	List(): tete(nullptr)  {}
-
-	~List() {
-		for (Chainon * c = tete ; c ; ) {
-			Chainon * tmp = c->next;
-			delete c;
-			c = tmp;
-		}
-	}
+	List();
+	~List();
 
 	const std::string & operator[] (size_t index) const ;
 
 	void push_back (const std::string& val) ;
 
-	void push_front (const std::string& val) {
-		tete = new Chainon(val,tete);
-	}
-
-	bool empty() ;
+	void push_front (const std::string& val);
+	bool empty() const;
 
 	size_t size() const ;
 };
 
 
-std::ostream & operator<< (std::ostream & os, const List & vec) ;
+std::ostream & operator<<(std::ostream & os, const List & vec) ;
 
 } /* namespace pr */
 

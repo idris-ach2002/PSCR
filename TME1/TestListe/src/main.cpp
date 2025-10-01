@@ -6,19 +6,22 @@
 int main () {
 
 	std::string abc = "abc";
-	char * str = new char [3];
+	std::string def("def");
+	// char * str = new char[4] {"abc"};
+	char * str = new char [4];
 	str[0] = 'a';
 	str[1] = 'b';
 	str[2] = 'c';
-	size_t i = 0;
+	str[3] = '\0';
+	int i = 0;
 
 	if (! strcmp (str, abc.c_str())) {
-		std::cout << "Equal !";
+		std::cout << "Equal !" << std::endl;
 	}
 
 	pr::List list;
 	list.push_front(abc);
-	list.push_front(abc);
+	list.push_front(def);
 
 	std::cout << "Liste : " << list << std::endl;
 	std::cout << "Taille : " << list.size() << std::endl;
@@ -29,10 +32,11 @@ int main () {
 	}
 
 	// liberer les char de la chaine
-	for (char *cp = str ; *cp ; cp++) {
+	//Faux
+	/*for (char *cp = str ; *cp ; cp++) {
 		delete cp;
-	}
+	}*/
 	// et la chaine elle meme
-	delete str;
-
+	delete[] str;
+	return 0;
 }
