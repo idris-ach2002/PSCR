@@ -22,5 +22,13 @@ add_executable(TME2
     src/main.cpp
 )
 
+add_executable(TME2_maison
+ src/main2.cpp
+)
+
+add_executable(TME2_std
+ src/main3.cpp
+)
+
 # Specify include directories.
 target_include_directories(TME2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

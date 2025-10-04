@@ -5,6 +5,9 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include "HashMap.h"
+
+const int NB_BUCKET_INITIAL = 100;
 
 // helper to clean a token (keep original comments near the logic)
 static std::string cleanWord(const std::string& raw) {
@@ -96,9 +99,8 @@ int main(int argc, char** argv) {
 		cout << "Found a total of " << nombre_lu << " words." << endl;
 		cout << "Found " << seen.size() << " unique words." << endl;
 
-	} else if (mode == "freq") {
-		std::vector<std::pair<std::string, int>> seen;
-		seen.reserve(10000);
+	} else if (mode == "freqhash") {
+		HashMap<std::string,int> seen(NB_BUCKET_INITIAL);
 
 		size_t nombre_lu = 0;
 
@@ -106,39 +108,33 @@ int main(int argc, char** argv) {
 			// élimine la ponctuation et les caractères spéciaux
 			word = cleanWord(word);
 
-			// add to seen if it is new or update it
-			auto it = find_if(seen.begin(), seen.end(), [&word](const auto& paire_){return paire_.first == word;});
-			if(it == seen.end()) {
-				seen.emplace_back(word, 0);
-			}else {
-				//update the value of the key (frequence of the sting)
-				it->second++;
-			}
-
-			/*if (nombre_lu % 100 == 0)
-				// on affiche un mot "propre" sur 100
-				cout << nombre_lu << ": "<< word << endl;*/
+            int * found = seen.get(word);
+            if(!found)
+                seen.put(word, 0);
+            else
+                seen.put(word, *found + 1);
 			nombre_lu++;
 		}
 		input.close();
 		
-		auto startSort = steady_clock::now();
+        auto vect = seen.toKeyValuePairs();
 		//Tri par ordre décroissant des fréquences
-		std::sort(seen.begin(), seen.end(), [&](const auto &f1, const auto & f2) {return f1.second > f2.second;});
-		auto endSort = steady_clock::now();
-		
+		std::sort(vect.begin(), vect.end(), [&](const auto &f1, const auto & f2) {return f1.second > f2.second;});
+
+		int * toto = seen.get("toto");
+        int * war = seen.get("war");
+        int * peace = seen.get("peace");
 		cout << "Finished parsing." << endl;
 		cout << "Found a total of " << nombre_lu << " words." << endl;
 		cout << "Found " << seen.size() << " unique pairs." << endl;
-		cout << "Found " << frequence(seen, "war") << " Occurences de war" << endl;
-		cout << "Found " << frequence(seen, "peace") << " Occurences de peace" << endl;
-		cout << "Found " << frequence(seen, "toto") << " Occurences de toto" << endl;
+		cout << "Found " << (war ? *war : 0) << " Occurences de war" << endl;
+		cout << "Found " << (peace ? *peace : 0) << " Occurences de peace" << endl;
+		cout << "Found " << (toto ? *toto : 0) << " Occurences de toto" << endl;
 		cout << endl << "Affichage => dix mots les plus fréquents " << endl;
 		for(int i = 0; i < 10; i++) {
-			const auto & p = seen[i];
+			const auto & p = vect[i];
 			cout << "{Mot : " << p.first << " => Freq : " << p.second << "}" << endl;
 		}
-		cout << endl << "Temps du tri => " << duration_cast<milliseconds>(endSort - startSort).count() << " ms" << endl;
 	}else {
 		// unknown mode: print usage and exit
 		cerr << "Unknown mode '" << mode << "'. Supported modes: count, unique" << endl;
@@ -148,6 +144,7 @@ int main(int argc, char** argv) {
 
 	// print a single total runtime for successful runs
 	auto end = steady_clock::now();
+    cout << "NB_BUCKET_INITIAL Configuration is => " << NB_BUCKET_INITIAL << endl;
 	cout << "Total runtime (wall clock) : " << duration_cast<milliseconds>(end - start).count() << " ms" << endl;
 
 	return 0;
