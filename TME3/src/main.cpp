@@ -11,6 +11,9 @@
 #include "HashMapAtomic.h"
 #include "FileUtils.h"
 #include <thread>
+#include <mutex>
+#include "HashMapMT.h"
+#include "HashMapFine.h"
 
 using namespace std;
 
@@ -101,7 +104,7 @@ int main(int argc, char **argv)
                 size_t unique_words = 0;
                 std::unordered_map<std::string, int> um;
                 auto v = pr::partition(filename, file_size, num_threads);
-                for(int i = 0; i < v.size() - 1; i++) {
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
                         pr::processRange(filename, v[i], v[i+1], [&](const std::string& word) {
                                 total_words++;
                                 um[word]++;
@@ -133,7 +136,7 @@ int main(int argc, char **argv)
                 }
 
                 */
-                for(int i = 0; i < v.size() - 1; i++) {
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
                      th.emplace_back(pr::processRange, std::cref(filename), v[i], v[i+1],[&](const std::string& word) {
                                 total_words++;
                                 um[word]++;
@@ -158,7 +161,7 @@ int main(int argc, char **argv)
                 auto v = pr::partition(filename, file_size, num_threads);
                 std::vector<std::thread> th;
                 th.reserve(num_threads);
-                for(int i = 0; i < v.size() - 1; i++) {
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
                      th.emplace_back([&, i]() {
                                 pr::processRange(filename, v[i], v[i+1], [&](const std::string& word) {
                                 total_words++;
@@ -186,7 +189,7 @@ int main(int argc, char **argv)
                 std::vector<std::thread> th;
                 th.reserve(num_threads);
 
-                for(int i = 0; i < v.size() - 1; i++) {
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
                      th.emplace_back(pr::processRange, std::cref(filename), v[i], v[i+1],[&](const std::string& word) {
                                 total_words++;
                                 um[word]++;
@@ -212,12 +215,16 @@ int main(int argc, char **argv)
                 auto v = pr::partition(filename, file_size, num_threads);
                 std::vector<std::thread> th;
                 th.reserve(num_threads);
-                for(int i = 0; i < v.size() - 1; i++) {
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
                      th.emplace_back([&, i]() {
-                                pr::processRange(filename, v[i], v[i+1], [&](const std::string& word) {
-                                total_words++;
-                                hm.incrementFrequency(word, 1);
-                                });
+                                pr::processRange(
+                                                filename,
+                                                v[i], v[i+1], 
+                                                [&](const std::string& word) {
+                                                        total_words++;
+                                                        hm.incrementFrequency(word, 1);
+                                                } 
+                                               );
                         });   
                 }
 
@@ -228,6 +235,196 @@ int main(int argc, char **argv)
                 pairs = hm.toKeyValuePairs();
                 unique_words = pairs.size();
                 pr::printResults(total_words, unique_words, pairs, mode + ".freq");
+                std::cout << "Nb des mots uniques " << unique_words << std::endl; 
+
+                std::cout << "Nb des mots uniques " << unique_words << std::endl; 
+        }  else if (mode == "mt_mutex") {
+                int total_words = 0;
+                size_t unique_words = 0;
+                std::unordered_map<std::string, int> um;
+                std::mutex mutex;
+                auto v = pr::partition(filename, file_size, num_threads);
+                std::vector<std::thread> th;
+                th.reserve(num_threads);
+
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
+                     th.emplace_back(pr::processRange, std::cref(filename), v[i], v[i+1],[&](const std::string& word) {
+                                // On est pas on std::defer_lock (deuxième arg du constructeur de unique_lock)
+                                //d'ou le lock() implicite à la création et le unlock() à la destruction après le scope du emplace_back
+                                std::unique_lock<std::mutex> lock(mutex);
+                                total_words++;
+                                um[word]++;
+                        });   
+                }
+
+                for(auto & t: th) {
+                    t.join();
+                }
+
+                unique_words = um.size();
+                pairs.reserve(unique_words);
+                for (const auto& p : um) pairs.emplace_back(p);
+                pr::printResults(total_words, unique_words, pairs, mode + ".freq");
+
+                std::cout << "Nb des mots total " << total_words << std::endl; 
+                std::cout << "Nb des mots uniques " << unique_words << std::endl; 
+
+        }  else if (mode == "mt_hmutex") {
+                size_t unique_words = 0;
+                HashMapMT<std::string,int> hm;
+                auto v = pr::partition(filename, file_size, num_threads);
+                std::vector<std::thread> th;
+                th.reserve(num_threads);
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
+                     th.emplace_back([&, i]() {
+                                pr::processRange(
+                                                filename,
+                                                v[i], v[i+1], 
+                                                [&](const std::string& word) {
+                                                        hm.incrementFrequency(word, 1);
+                                                } 
+                                               );
+                        });   
+                }
+
+                for(auto & t: th) {
+                    t.join();
+                }
+
+                pairs = hm.toKeyValuePairs();
+                unique_words = pairs.size();
+                pr::printResults(hm.getTotalWords(), unique_words, pairs, mode + ".freq");
+                std::cout << "Nb des mots uniques " << unique_words << std::endl; 
+
+                std::cout << "Nb des mots uniques " << unique_words << std::endl; 
+        } else if (mode == "mt_hashes") {
+                std::atomic<int> total_words = 0;
+                size_t unique_words = 0;
+
+                // faut initialiser chaque unordered_map sinon UB
+                std::vector<std::unordered_map<std::string, int>> hashes(num_threads);
+
+                auto v = pr::partition(filename, file_size, num_threads);
+
+                std::vector<std::thread> th;
+                th.reserve(num_threads);
+
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
+                     th.emplace_back(
+                                [&, i]() {
+                                      pr::processRange(
+                                                        filename,
+                                                        v[i], v[i+1], 
+                                                        [&](const std::string& word) {
+                                                                hashes[i][word]++;
+                                                                total_words++;
+                                                        } 
+                                               );
+                                }
+                                   );   
+                }
+
+                for(auto & t: th) {
+                    t.join();
+                }
+
+                // On peut aussi le faire avec notre HashMap maison on invoquant incrementFrequency(word, 1);
+                std::unordered_map<std::string, int> fusion;
+
+                for (const auto& local_map : hashes) {
+                        for (const auto& pair : local_map) {
+                                // ici reagrde si pair.first exite elle rend une ref modifiable
+                                //sinon elle le crée avec une valeur 0 comme c'est un int
+                                //après elle rend la ref modifiable
+                                fusion[pair.first] += pair.second;
+                        }
+                }
+
+                unique_words = fusion.size();
+                pairs.reserve(unique_words);
+                for (const auto& p : fusion) pairs.emplace_back(p);
+                pr::printResults(total_words, unique_words, pairs, mode + ".freq");
+
+                std::cout << "Nb des mots total " << total_words << std::endl; 
+                std::cout << "Nb des mots uniques " << unique_words << std::endl; 
+
+        } else if (mode == "mt_hhashes") {
+                std::atomic<int> total_words = 0;
+                size_t unique_words = 0;
+
+                // faut initialiser chaque unordered_map sinon UB
+                std::vector<HashMap<std::string, int>> hashes(num_threads);
+
+                auto v = pr::partition(filename, file_size, num_threads);
+
+                std::vector<std::thread> th;
+                th.reserve(num_threads);
+
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
+                     th.emplace_back(
+                                [&, i]() {
+                                      pr::processRange(
+                                                        filename,
+                                                        v[i], v[i+1], 
+                                                        [&](const std::string& word) {
+                                                                hashes[i].incrementFrequency(word, 1);
+                                                                total_words++;
+                                                        } 
+                                               );
+                                }
+                                   );   
+                }
+
+                for(auto & t: th) {
+                    t.join();
+                }
+
+                // On peut aussi le faire avec notre HashMap maison on invoquant incrementFrequency(word, 1);
+                HashMap<std::string, int> fusion;
+
+                for (const auto& local_map : hashes) {
+                    for (const auto& paire : local_map.toKeyValuePairs()) {       
+                        fusion.incrementFrequency(paire.first, paire.second);    
+                    }
+                }
+                // Récupérer les paires fusionnées et puis le size() nous donne le nbr des paires uniques
+                auto fused_pairs = fusion.toKeyValuePairs();
+                unique_words = fused_pairs.size();
+
+                pairs.reserve(unique_words);
+                for (const auto& p : fused_pairs) {
+                        pairs.emplace_back(p);
+                }
+                pr::printResults(total_words, unique_words, pairs, mode + ".freq");
+
+                std::cout << "Nb des mots total " << total_words << std::endl; 
+                std::cout << "Nb des mots uniques " << unique_words << std::endl; 
+
+        }  else if (mode == "mt_hfine") {
+                HashMapFine<std::string,int> hm;
+                size_t unique_words = 0;
+                auto v = pr::partition(filename, file_size, num_threads);
+                std::vector<std::thread> th;
+                th.reserve(num_threads);
+                for(int i = 0; i < (int) (v.size() - 1); i++) {
+                     th.emplace_back([&, i]() {
+                                pr::processRange(
+                                                filename,
+                                                v[i], v[i+1], 
+                                                [&](const std::string& word) {
+                                                        hm.incrementFrequency(word, 1);
+                                                } 
+                                               );
+                        });   
+                }
+
+                for(auto & t: th) {
+                    t.join();
+                }
+
+                pairs = hm.toKeyValuePairs();
+                unique_words = pairs.size();
+                pr::printResults(hm.getTotalWords(), unique_words, pairs, mode + ".freq");
                 std::cout << "Nb des mots uniques " << unique_words << std::endl; 
 
                 std::cout << "Nb des mots uniques " << unique_words << std::endl; 

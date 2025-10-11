@@ -1,4 +1,4 @@
-# Install script for directory: /users/Etu1/21500491/M1_STL/PSCR/PSCR/TME3
+# Install script for directory: /home/idris-achabou/Documents/M1_STL/PSCR/TME3
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/users/Etu1/21500491/M1_STL/PSCR/PSCR/TME3/build-release/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/idris-achabou/Documents/M1_STL/PSCR/TME3/build-release/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
