@@ -132,19 +132,19 @@ int main(int argc, char *argv[]) {
             fileQueue.push(file);
         });
 
-        // 4. Push poison pill (After processing all files) (arreter le reader qui lit depuis la file du Main)
+        // 4. Push poison pill (After processing all files) (pour arreter le reader qui lit depuis la file du Main)
         fileQueue.push(pr::FILE_POISON);
 
         // 5. attendre le reader (Il va charger toutes les images)
         reader.join();
 
-        //areter le resizer (Avec le poison) (il lit depuis la file de reader)
+        //pour areter le resizer (Avec le poison) (il lit depuis la file de reader)
         imageQueue.push(pr::TASK_POISON);
 
          // 5. attendre le resizer (Il va redimensionner toutes les images)
         resizer.join();
 
-         //areter le saver (Avec le poison)
+         //pour areter le saver (Avec le poison)
         resizerQueue.push(pr::TASK_POISON);
 
         // 5. attendre le saver (Il va stocker toutes les images redimensionnées)
@@ -203,7 +203,7 @@ int main(int argc, char *argv[]) {
             r.join();
         
 
-        //areter le resizer (Avec le(s) N poison) (il lit depuis la file de reader)
+        //areter les resizers (Avec le(s) N poison) (il lit depuis la file de reader)
         for(int i = 0; i < nb_resizer; i++)
             imageQueue.push(pr::TASK_POISON);
 

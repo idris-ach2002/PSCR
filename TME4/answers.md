@@ -415,7 +415,7 @@ Total CPU time across all threads: 6733 ms
 
 interprétation
 
-🔹 1/1/1 (monothread pour chaque étape)
+ 1/1/1 (monothread pour chaque étape)
 
 Wall clock : ~2923 ms
 
@@ -423,7 +423,7 @@ La lecture est très lente car elle est entièrement séquentielle.
 
 Le CPU du reader est surchargé, les autres étapes (resize/saver) sont sous-utilisées.
 
-🔹 1/4/1 (1 reader, 4 resizeurs, 1 saver)
+1/4/1 (1 reader, 4 resizeurs, 1 saver)
 
 Wall clock : ~2919 ms
 

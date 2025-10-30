@@ -29,7 +29,7 @@ public:
         //les occurences son bonnes mais le compteur est en data race (i et j incrémente au même temps)
         std::size_t idx = std::hash<K>{}(key) % buckets_.size();
         // On verrou sur le bucket concerné
-        std::unique_lock<std::mutex> lock(vect_m[idx]);
+        std::unique_lock lock(vect_m[idx]);
         for (Entry &e : buckets_[idx]) {
             if (e.key == key) { e.value += delta; compteur++; return; }
         }

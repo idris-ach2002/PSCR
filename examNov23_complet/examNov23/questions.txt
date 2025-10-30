@@ -1,0 +1,7 @@
+1. Quel est l'intérêt en pratique d'un pool de thread par rapport à l'instanciation d'un thread par tâche à traiter ?
+
+
+2. Expliquez comment communiquer une donnée particulière entre deux threads. Cette stratégie est elle encore valable dans un contexte multi-processus ?
+
+
+3. Expliquez quand et de quelle manière sont traités les signaux reçus en fonction du ``masque'' du processus.

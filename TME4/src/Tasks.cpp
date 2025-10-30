@@ -52,7 +52,7 @@ TaskData TASK_POISON {pr::FILE_POISON};
 void reader(FileQueue& fileQueue, ImageTaskQueue& imageQueue) {
     pr::thread_timer timer;
     while (true) {
-      std::filesystem::path f = fileQueue.pop();
+        std::filesystem::path f = fileQueue.pop();
         if (f == pr::FILE_POISON) break; // poison pill
         QImage original = pr::loadImage(f);
         TaskData tache = {f, original};

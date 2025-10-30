@@ -251,7 +251,7 @@ int main(int argc, char **argv)
                      th.emplace_back(pr::processRange, std::cref(filename), v[i], v[i+1],[&](const std::string& word) {
                                 // On est pas on std::defer_lock (deuxième arg du constructeur de unique_lock)
                                 //d'ou le lock() implicite à la création et le unlock() à la destruction après le scope du emplace_back
-                                std::unique_lock<std::mutex> lock(mutex);
+                                std::unique_lock lock(mutex);
                                 total_words++;
                                 um[word]++;
                         });   

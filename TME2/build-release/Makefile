@@ -129,6 +129,32 @@ TME2/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2.dir/build.make CMakeFiles/TME2.dir/build
 .PHONY : TME2/fast
 
+#=============================================================================
+# Target rules for targets named TME2_maison
+
+# Build rule for target.
+TME2_maison: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 TME2_maison
+.PHONY : TME2_maison
+
+# fast build rule for target.
+TME2_maison/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2_maison.dir/build.make CMakeFiles/TME2_maison.dir/build
+.PHONY : TME2_maison/fast
+
+#=============================================================================
+# Target rules for targets named TME2_std
+
+# Build rule for target.
+TME2_std: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 TME2_std
+.PHONY : TME2_std
+
+# fast build rule for target.
+TME2_std/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2_std.dir/build.make CMakeFiles/TME2_std.dir/build
+.PHONY : TME2_std/fast
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -153,6 +179,54 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2.dir/build.make CMakeFiles/TME2.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/main2.o: src/main2.cpp.o
+.PHONY : src/main2.o
+
+# target to build an object file
+src/main2.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2_maison.dir/build.make CMakeFiles/TME2_maison.dir/src/main2.cpp.o
+.PHONY : src/main2.cpp.o
+
+src/main2.i: src/main2.cpp.i
+.PHONY : src/main2.i
+
+# target to preprocess a source file
+src/main2.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2_maison.dir/build.make CMakeFiles/TME2_maison.dir/src/main2.cpp.i
+.PHONY : src/main2.cpp.i
+
+src/main2.s: src/main2.cpp.s
+.PHONY : src/main2.s
+
+# target to generate assembly for a file
+src/main2.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2_maison.dir/build.make CMakeFiles/TME2_maison.dir/src/main2.cpp.s
+.PHONY : src/main2.cpp.s
+
+src/main3.o: src/main3.cpp.o
+.PHONY : src/main3.o
+
+# target to build an object file
+src/main3.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2_std.dir/build.make CMakeFiles/TME2_std.dir/src/main3.cpp.o
+.PHONY : src/main3.cpp.o
+
+src/main3.i: src/main3.cpp.i
+.PHONY : src/main3.i
+
+# target to preprocess a source file
+src/main3.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2_std.dir/build.make CMakeFiles/TME2_std.dir/src/main3.cpp.i
+.PHONY : src/main3.cpp.i
+
+src/main3.s: src/main3.cpp.s
+.PHONY : src/main3.s
+
+# target to generate assembly for a file
+src/main3.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/TME2_std.dir/build.make CMakeFiles/TME2_std.dir/src/main3.cpp.s
+.PHONY : src/main3.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,9 +236,17 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... TME2"
+	@echo "... TME2_maison"
+	@echo "... TME2_std"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/main2.o"
+	@echo "... src/main2.i"
+	@echo "... src/main2.s"
+	@echo "... src/main3.o"
+	@echo "... src/main3.i"
+	@echo "... src/main3.s"
 .PHONY : help
 
 
