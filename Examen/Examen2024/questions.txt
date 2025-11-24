@@ -1,0 +1,6 @@
+# Q3: Verrouillage "fin"
+
+# Q6 : notify one/all 
+
+# Q10 : trace/mesure de performance
+

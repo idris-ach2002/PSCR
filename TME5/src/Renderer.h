@@ -176,9 +176,9 @@ public:
     void renderPoolRow(const Scene & scene, Image& img, int nbThread) {
         Pool pool(scene.getHeight());
         pool.start(nbThread);
-            for (int y = 0; y < scene.getHeight(); y++) {
-                pool.submit(new LineJob(scene, img, y));
-            }
+        for (int y = 0; y < scene.getHeight(); y++) {
+            pool.submit(new LineJob(scene, img, y));
+        }
         pool.stop();
     }
 };

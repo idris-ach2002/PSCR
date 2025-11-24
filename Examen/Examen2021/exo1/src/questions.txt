@@ -1,0 +1,13 @@
+> Expliquez pourquoi si on vient de tester que la file n'est pas pleine dans un producteur
+> qui fait put et qu'on se fait ``doubler'' par un consommateur qui vient modifier $count$,
+> le comportement du producteur va rester correct. 
+
+
+> Expliquez ce qui va se produire dans le scenario suivant, deux consommateurs C1 et C2
+> tentent de chacun de consommer un message sur une file vide, ensuite on passe la main
+> à un producteur P qui parvient à insérer trois éléments dans la queue d'affilée.
+> Expliquer comment vont se passer les notifications dans ce scenario sachant que l'on utilise
+> $notify\_one()$ pour toutes les notifications.
+
+
+ 
