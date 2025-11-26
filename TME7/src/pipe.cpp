@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
   if(!child1) {
     close(fd[0]);
     dup2(fd[1], STDOUT_FILENO);
-    execv(argv[0], argv);
+    execvp(argv[1], argv+1);
   }
 
   // Fork the second child process ; child redirects in from read end of pipe, then exec
@@ -55,13 +55,29 @@ int main(int argc, char **argv) {
   if(!child2) {
     close(fd[1]);
     dup2(fd[0], STDIN_FILENO);
-    execv(argv[i], argv+i);
+    execvp(argv[i], argv+i);
   }
 
   // Wait for both children to finish
 
+  close(fd[0]);
+  close(fd[1]); 
+
+
   waitpid(child1, nullptr, 0);
   waitpid(child2, nullptr, 0);
+
+  /* si on met les close après le w it deadlock 
+  car le premier fils termine écrit dans le buffer lui il a closé la lecture c'est un écrivains
+  il termine on ferme la deuxième extrimité après le execvp
+
+  or le père il possède les deux extrimités
+
+  le deuxième fils se block sur le read car il attend un écrivain le père alors que lui il écrit rien du tout
+
+  on pense toujours à fermer les deux extrimités avant le wait c'est primordial
+  
+  */
 
   return 0;
 }
